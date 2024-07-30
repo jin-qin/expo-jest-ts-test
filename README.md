@@ -1,50 +1,80 @@
-# Welcome to your Expo app 👋
+## expo-jest-ts-test
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This repo is a minimal reproducible example for the below issues while using `jest-expo`:
+1. `jest-expo` cannot let me do top-level await functions.
+2. `jest-expo` cannot pick up my custom tsconfig file `tsconfg.test.json`
+3. `jest-expo` will fail on `.web.ts`.
 
-## Get started
+> [!IMPORTANT]
+> Before running the minimal reproducible example, run `npx firebase emulators:start` first.
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+#### Case 1
+In the minimal reproducible example, if you directly run `npx jest`, will give an error:
+```
+SyntaxError: await is only valid in async functions and the top level bodies of modules
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+#### Case 2
+If you comment out `await testAsyncFunc();` in `lib/firebase/firebase.ts`, then run `npx jest`, will give another error:
+```
+SyntaxError: Cannot use import statement outside a module
+```
+It basically indicates the `jest` doesn't load `tsconfig.test.json`, it will work if you remove the below configuration from `tsconfig.json`:
+```
+"@firebase/auth": [
+  "./node_modules/@firebase/auth/dist/index.rn.d.ts"
+]
+```
 
-## Learn more
+#### Case 3
+If you change `example-test.node.ts` to `example-test.web.ts`, it will pass on `Node` but fail on `Web`.
 
-To learn more about developing your project with Expo, look at the following resources:
+Kindly ask if you can take a look? Man thanks!
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Environment
 
-## Join the community
+```
+  expo-env-info 1.2.0 environment info:
+    System:
+      OS: macOS 14.5
+      Shell: 5.9 - /bin/zsh
+    Binaries:
+      Node: 20.14.0 - ~/.nvm/versions/node/v20.14.0/bin/node
+      Yarn: 1.22.15 - /usr/local/bin/yarn
+      npm: 10.7.0 - ~/.nvm/versions/node/v20.14.0/bin/npm
+      Watchman: 2024.05.06.00 - /usr/local/bin/watchman
+    Managers:
+      CocoaPods: 1.15.2 - /usr/local/bin/pod
+    SDKs:
+      iOS SDK:
+        Platforms: DriverKit 23.5, iOS 17.5, macOS 14.5, tvOS 17.5, visionOS 1.2, watchOS 10.5
+    IDEs:
+      Xcode: 15.4/15F31d - /usr/bin/xcodebuild
+    npmPackages:
+      expo: ~51.0.23 => 51.0.23 
+      expo-router: ~3.5.19 => 3.5.19 
+      react: 18.2.0 => 18.2.0 
+      react-dom: 18.2.0 => 18.2.0 
+      react-native: 0.74.3 => 0.74.3 
+      react-native-web: ~0.19.10 => 0.19.12 
+    Expo Workflow: managed
+```
 
-Join our community of developers creating universal apps.
+### Expo Doctor Diagnostics
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```
+✔ Check Expo config for common issues
+✔ Check package.json for common issues
+✔ Check native tooling versions
+✔ Check dependencies for packages that should not be installed directly
+✔ Check for common project setup issues
+✔ Check for issues with metro config
+✔ Check Expo config (app.json/ app.config.js) schema
+✔ Check npm/ yarn versions
+✔ Check for legacy global CLI installed locally
+✔ Check that native modules do not use incompatible support packages
+✔ Check that native modules use compatible support package versions for installed Expo SDK
+✔ Check that packages match versions required by installed Expo SDK
+
+Didn't find any issues with the project!
+```
